@@ -1,113 +1,130 @@
+// src/App.jsx
 import { useState, useEffect } from 'react'
+// Переконайся, що цей імпорт є, щоб підтягнулися нові стилі
 import './App.css'
 
 function App() {
-  const [products, setProducts] = useState([]) // Тут живе список
-  const [name, setName] = useState("")         // Тут назва нового товару
-  const [price, setPrice] = useState("")       // Тут ціна нового товару
+  const [products, setProducts] = useState([])
+  const [name, setName] = useState("")
+  const [price, setPrice] = useState("")
 
-  // 1. ЗАВАНТАЖЕННЯ (GET)
-  // Як тільки сайт відкрився — тягнемо дані з сервера
+  const API_URL = "https://eastbound-lizette-avowedly.ngrok-free.dev/";
+
+  const fetchProducts = () => {
+    fetch(`${API_URL}/products`, {
+      headers: {
+        "ngrok-skip-browser-warning": "true" 
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Дані прийшли:", data);
+        setProducts(data);
+      })
+      .catch(err => console.error("Помилка завантаження:", err))
+  }
+
   useEffect(() => {
     fetchProducts();
   }, [])
 
-  const fetchProducts = () => {
-    fetch('http://localhost:8080/products')
-      .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Помилка з'єднання:", err))
-  }
-
-  // 2. ДОДАВАННЯ (POST)
   const handleAdd = (e) => {
-    e.preventDefault(); // Щоб сторінка не перезавантажилась
+    e.preventDefault();
     
     if (!name || !price) return alert("Заповни всі поля!");
 
     const newProduct = {
       name: name,
-      price: Number(price), // Сервер хоче число, а не рядок
-      category: "Інше"      // Заглушка, бо ми поки не вибираємо категорію
+      price: Number(price),
+      category: "Інше"
     }
 
-    fetch('http://localhost:8080/products', {
+    fetch(`${API_URL}/products`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        "ngrok-skip-browser-warning": "true" 
+      },
       body: JSON.stringify(newProduct)
     })
     .then(res => {
       if (res.ok) {
-        fetchProducts(); // Оновлюємо список після додавання
-        setName("");     // Чистимо поля
+        fetchProducts(); 
+        setName("");    
         setPrice("");
+      } else {
+        alert("Сервер повернув помилку");
       }
     })
+    .catch(err => console.error("Помилка додавання:", err))
   }
 
-  // 3. ВИДАЛЕННЯ (DELETE)
   const handleDelete = (id) => {
-    fetch(`http://localhost:8080/products/${id}`, {
-      method: 'DELETE'
+    fetch(`${API_URL}/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        "ngrok-skip-browser-warning": "true"
+      }
     })
     .then(res => {
       if (res.ok) {
-        // Прибираємо товар з екрану без перезавантаження
         setProducts(products.filter(p => p.id !== id))
       }
     })
+    .catch(err => console.error("Помилка видалення:", err))
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
+    // Замінили інлайн-стилі на класи
+    <div className="app-container">
       <h1>🛒 Менеджер Товарів</h1>
+      <p className="server-info">Сервер: {API_URL}</p>
 
-      {/* ФОРМА ДОДАВАННЯ */}
-      <form onSubmit={handleAdd} style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+      <form onSubmit={handleAdd} className="add-form">
         <input 
           type="text" 
-          placeholder="Назва товару (напр. Хліб)" 
+          placeholder="Назва (напр. Хліб)" 
           value={name}
           onChange={e => setName(e.target.value)}
-          style={{ padding: "8px", flex: 1 }}
+          // Додали класи для інпутів
+          className="input-field name-input"
         />
         <input 
           type="number" 
           placeholder="Ціна" 
           value={price}
           onChange={e => setPrice(e.target.value)}
-          style={{ padding: "8px", width: "80px" }}
+          // Додали класи для інпутів
+          className="input-field price-input"
         />
-        <button type="submit" style={{ padding: "8px 20px", cursor: "pointer" }}>
+        <button type="submit" className="btn-add">
           Додати
         </button>
       </form>
 
-      {/* СПИСОК ТОВАРІВ */}
-      <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "10px" }}>
-        {products.length === 0 ? <p>Список порожній...</p> : null}
+      <div className="product-list-container">
+        {products.length === 0 ? (
+          <p className="empty-message">Список порожній, додайте щось...</p>
+        ) : null}
         
-        {products.map(product => (
-          <div key={product.id} style={{ 
-            display: "flex", 
-            justifyContent: "space-between", 
-            borderBottom: "1px solid #eee", 
-            padding: "10px 0" 
-          }}>
-            <div>
-              <strong>{product.name}</strong> 
-              <span style={{ color: "green", marginLeft: "10px" }}>{product.price} грн</span>
-              <span style={{ color: "gray", fontSize: "0.8em", marginLeft: "10px" }}>({product.category})</span>
-            </div>
-            
-            <button 
-              onClick={() => handleDelete(product.id)}
-              style={{ background: "red", color: "white", border: "none", cursor: "pointer", borderRadius: "4px" }}
-            >
-              Видалити
-            </button>
-          </div>
-        ))}
+        <ul className="product-list">
+          {products.map(product => (
+            <li key={product.id} className="product-item">
+              <div className="product-info">
+                <span className="product-name">{product.name}</span> 
+                <span className="product-price">{product.price} грн</span>
+              </div>
+              
+              <button 
+                onClick={() => handleDelete(product.id)}
+                className="btn-delete"
+                title="Видалити"
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
