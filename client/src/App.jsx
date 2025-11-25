@@ -1,6 +1,4 @@
-// src/App.jsx
 import { useState, useEffect } from 'react'
-// Переконайся, що цей імпорт є, щоб підтягнулися нові стилі
 import './App.css'
 
 function App() {
@@ -75,7 +73,6 @@ function App() {
   }
 
   return (
-    // Замінили інлайн-стилі на класи
     <div className="app-container">
       <h1>🛒 Менеджер Товарів</h1>
       <p className="server-info">Сервер: {API_URL}</p>
@@ -86,7 +83,6 @@ function App() {
           placeholder="Назва (напр. Хліб)" 
           value={name}
           onChange={e => setName(e.target.value)}
-          // Додали класи для інпутів
           className="input-field name-input"
         />
         <input 
@@ -94,7 +90,6 @@ function App() {
           placeholder="Ціна" 
           value={price}
           onChange={e => setPrice(e.target.value)}
-          // Додали класи для інпутів
           className="input-field price-input"
         />
         <button type="submit" className="btn-add">
