@@ -10,11 +10,22 @@ products = [
 
 class ProductServer(BaseHTTPRequestHandler):
 
-    # --- Відповідь у форматі JSON ---
-    def send_json(self, data, status=200):
+    # --- 1. ВИПРАВЛЕННЯ: Додали CORS заголовки ---
+    def _set_headers(self, status=200):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        # Дозволяємо React'у доступ
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
+    # --- 2. ВИПРАВЛЕННЯ: Обробка OPTIONS запитів (Preflight) ---
+    def do_OPTIONS(self):
+        self._set_headers(200)
+
+    def send_json(self, data, status=200):
+        self._set_headers(status)
         self.wfile.write(json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8"))
 
     # --- GET запити ---
