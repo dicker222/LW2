@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react'
+import React from 'react'; // <--- ОСЬ ЦЕ ДОДАЙ
+
+
+// ... далі твій код ...
 import './App.css'
 
 function App() {
