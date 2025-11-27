@@ -1,12 +1,6 @@
-// ================================
-// 🧠 ТЕСТИ API ДЛЯ ПРОДУКТІВ
-// ================================
+const API_URL = "https://fsefes";
 
-const API_URL = "https://eastbound-lizette-avowedly.ngrok-free.dev";
-
-// --- Мок (імітація) fetch ---
 global.fetch = async (url, options = {}) => {
-  // GET /products
   if (url.endsWith("/products") && (!options.method || options.method === "GET")) {
     return {
       ok: true,
@@ -17,7 +11,6 @@ global.fetch = async (url, options = {}) => {
     };
   }
 
-  // POST /products
   if (url.endsWith("/products") && options.method === "POST") {
     const body = JSON.parse(options.body);
     return {
@@ -26,7 +19,6 @@ global.fetch = async (url, options = {}) => {
     };
   }
 
-  // DELETE /products/:id
   if (url.includes("/products/") && options.method === "DELETE") {
     return { ok: true };
   }
